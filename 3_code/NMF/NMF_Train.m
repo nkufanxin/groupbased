@@ -1,4 +1,4 @@
-function [U, V , objective_value_set] = Group_NMF_Train(mgi_mp_train_set, pathway_mgi, ...,
+function [U, V , objective_value_set] = NMF_Train(mgi_mp_train_set, pathway_mgi, ...,
     ppi, mp_mp, lambda0, lambda1, lambda2, K, max_ites, epsilon, batch_folds)
 %GROUP_NMF_TRAIN Summary of this function goes here
 %   Detailed explanation goes here
@@ -25,7 +25,7 @@ function [U, V , objective_value_set] = Group_NMF_Train(mgi_mp_train_set, pathwa
     for ite = 1:max_ites
         [objective_value_set(ite,1)] = Objective_Fun(R, pathway_mgi, U, V, ...,
             L1, L2, lambda0, lambda1, lambda2);
-        if objective_value_set(ite,1)>objective_value_set(ite-1,1)
+        if ite>1 && objective_value_set(ite,1)>objective_value_set(ite-1,1)
             break;
         end
         %\begin{calculate the group centers in each iteration}
@@ -54,8 +54,7 @@ function [U, V , objective_value_set] = Group_NMF_Train(mgi_mp_train_set, pathwa
     end    
 end
 function [objective_value] = Objective_Fun(R, pathway_mgi, U, V, ...,
-    L1, L2, lambda0, lambda1, lambda2)
-    objective_value = 0;
+    L1, L2, lambda0, lambda1, lambda2)    
     group_loss = 0;
     %filter out the pathways that contain more than one genes, in order
     %to calculate the center of genes
@@ -73,7 +72,7 @@ function [objective_value] = Objective_Fun(R, pathway_mgi, U, V, ...,
         group_loss = group_loss +sum(sum((U(pathway_mgi_filtered(i,:)>0,:) ...,
             - repmat(group_center,genes_in_this_pathway,1)).^2));          
     end
-    objective_value = 0.5*sum(sum((R.*(R-U*V)).^2)) + 0.5*lambda0*group_loss + ..., 
+    objective_value = 0.5*sum(sum((R-U*V).^2)) + 0.5*lambda0*group_loss + ..., 
            + 0.5*lambda1* (sum(diag(U'*L1*U)) + sum(diag(V*L2*V'))) ...,
            + 0.5*lambda2* (sum(sum(U.^2)) + sum(sum(V.^2)));   
     
@@ -82,7 +81,7 @@ function [U] = Gradient_Update_U(U_rows_set, group_center_matrix, ...,
             R, pathway_mgi, U, V, S1, lambda0, lambda1, lambda2, K)
     %parameter 'U_rows_set': it indicates which rows are gonna take gradient
     U_old = U;    
-    D1 = diag(diag(S1));
+    D1 = diag(sum(S1));
     for i = U_rows_set       
         group_center_sum_contain_gene_i = zeros(1,K);
         c_i = sum(pathway_mgi(:,i));
@@ -92,10 +91,10 @@ function [U] = Gradient_Update_U(U_rows_set, group_center_matrix, ...,
         %end        
         numerator_vec = R(i,:)*V' + lambda0*group_center_sum_contain_gene_i ...,
             + lambda1*S1(i,:)*U;        
-        denominator_vec = (R(i,:).*(U_old(i,:)*V))*V' + lambda0*c_i*U_old(i,:) + ...,
+        denominator_vec = (U_old(i,:)*V)*V' + lambda0*c_i*U_old(i,:) + ...,
             lambda1*(D1(i,:)*U_old) + lambda2*U_old(i,:);
         if sum(numerator_vec)>0
-            U(i,:) = U_old(i,:).*(numerator_vec./denominator_vec);     
+            U(i,:) = U_old(i,:).*sqrt((numerator_vec./denominator_vec));     
         end
     end
     
@@ -106,11 +105,11 @@ function [V_new] = Gradient_Update_V(V_cols_set, R, U, V, S2, ...,
     D2 = diag(sum(S2));
     for j = V_cols_set
         numerator_vec = U'*R(:,j)+lambda1*(V*S2(:,j));
-        denominator_vec = U'*( R(:,j).*(U*V(:,j)) ) + lambda1*V*D2(:,j) + ...,
+        denominator_vec = U'*(U*V(:,j))  + lambda1*V*D2(:,j) + ...,
             lambda2*V(:,j);
         tmp = V(:,j).*(numerator_vec./denominator_vec);        
         if sum(tmp)>0
-            V_new(:,j) = V(:,j).*(numerator_vec./denominator_vec);
+            V_new(:,j) = V(:,j).*sqrt((numerator_vec./denominator_vec));
         end
     end
 end

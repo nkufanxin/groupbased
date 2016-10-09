@@ -1,7 +1,6 @@
 path(path,'evaluation')
 path(path,'data')
-
-%clear;
+clear;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-load-%%%%%%%%%%%%%%%%%%%%%%%%%%
 load('data670.mat');
 % load('data670.mat','mmu_mp_mgi');
@@ -9,11 +8,10 @@ load('data670.mat');
 % load('data670.mat','mmu_pathway_mgi','mmu_ppi');
 % load('data670.mat','mmu_mp_mp');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mmu_mgi_mp = mmu_mp_mgi';
 experiment_times = 10;
-batch_folds = 1;
-max_ites = 10*batch_folds; 
+batch_folds = 10;
+max_ites = 5*batch_folds; 
 K = 10;
 epsilon = 0.1;
  %we use variable 'test_set_percent' to set the test set percentage
@@ -22,8 +20,8 @@ test_set_percent = 0.2;
 %indicates the percentage of origianl training set to train
 train_set_percent = 1;
 
-lambda0 = [0,0.001,0.01,0.1,1,10];%[0,0.001,0.01,0.1,1,10,100,1000]
-lambda1 = [0,0.001,0.01,0.1,1,10];% [0,0.001,0.01,0.1,1,10,100,1000]
+lambda0 = [0,0.001,0.01,0.1,1,10,100,1000];%[0,0.001,0.01,0.1,1,10,100,1000]
+lambda1 = [0,0.001,0.01,0.1,1,10,100,1000];% [0,0.001,0.01,0.1,1,10,100,1000]
 lambda2 = [0,1];
 
 top_n_set = [200,400,600,800,1000];
@@ -39,7 +37,7 @@ for i = 1:length(lambda0)
             tmp2 = cell(experiment_times,1);
             tmp3 = cell(experiment_times,1);
             tmp4 = cell(experiment_times,1);
-            for ite = 1:experiment_times
+          for ite = 1:experiment_times
                
                 [mmu_mgi_mp_test_set] = Random_Choose_Test_Set(mmu_mgi_mp , test_set_percent);               
                 [mmu_mgi_mp_train_set] = Train_set(mmu_mgi_mp, mmu_mgi_mp_test_set, train_set_percent);
@@ -47,7 +45,6 @@ for i = 1:length(lambda0)
                 %train the model
                 [U, V, tmp2{ite,1}] = Group_NMF_Train(mmu_mgi_mp_train_set, mmu_pathway_mgi, mmu_ppi, mmu_mp_mp, ...,
                     lambda0(i), lambda1(j), lambda2(k), K, max_ites, epsilon, batch_folds);
-                
                 %evaluate the model                
                 [tmp{ite,1}] = Group_NMF_Evaluate(mmu_mgi_mp_test_set, mmu_mgi_mp, U, V, top_n_set);              
                 tmp3{ite,1} = U;
@@ -58,6 +55,10 @@ for i = 1:length(lambda0)
             U_result(:,i,j,k) = tmp3;
             V_result(:,i,j,k) = tmp4;
             
+            i
+            j 
+            k
+            datestr(now)
         end
     end
 end
@@ -83,7 +84,7 @@ t='';
 for i=1:length(datetime)
     t=[t num2str(datetime(i))];
 end
-result = [directory 'result_' t '.mat'];
+result = [directory 'result_10block_' t '.mat'];
 save(result,'lambda0','lambda1','lambda2','experiment_times');
 save(result,'batch_folds','max_ites','epsilon','-append');
 save(result,'K','top_n_set','-append');

@@ -1,15 +1,13 @@
 path(path,'evaluation')
 path(path,'data')
-
-%clear;
+clear;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-load-%%%%%%%%%%%%%%%%%%%%%%%%%%
-load('data670.mat');
+load('data670_Hierarchy.mat');
 % load('data670.mat','mmu_mp_mgi');
 % load('data670.mat','mmu_mgi_ids','mmu_mp_ids');
 % load('data670.mat','mmu_pathway_mgi','mmu_ppi');
 % load('data670.mat','mmu_mp_mp');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mmu_mgi_mp = mmu_mp_mgi';
 experiment_times = 10;
 batch_folds = 1;
@@ -47,7 +45,6 @@ for i = 1:length(lambda0)
                 %train the model
                 [U, V, tmp2{ite,1}] = Group_NMF_Train(mmu_mgi_mp_train_set, mmu_pathway_mgi, mmu_ppi, mmu_mp_mp, ...,
                     lambda0(i), lambda1(j), lambda2(k), K, max_ites, epsilon, batch_folds);
-                
                 %evaluate the model                
                 [tmp{ite,1}] = Group_NMF_Evaluate(mmu_mgi_mp_test_set, mmu_mgi_mp, U, V, top_n_set);              
                 tmp3{ite,1} = U;
@@ -58,6 +55,10 @@ for i = 1:length(lambda0)
             U_result(:,i,j,k) = tmp3;
             V_result(:,i,j,k) = tmp4;
             
+            i
+            j
+            k
+            datestr(now) 
         end
     end
 end
@@ -83,7 +84,7 @@ t='';
 for i=1:length(datetime)
     t=[t num2str(datetime(i))];
 end
-result = [directory 'result_' t '.mat'];
+result = [directory 'result_Hierarchy_' t '.mat'];
 save(result,'lambda0','lambda1','lambda2','experiment_times');
 save(result,'batch_folds','max_ites','epsilon','-append');
 save(result,'K','top_n_set','-append');

@@ -1,4 +1,4 @@
-function [auc_map_ndcg_top_n_set] = Group_NMF_Evaluate(mmu_mgi_mp_test_set, mmu_mgi_mp, U, V, top_n_set)
+function [auc_map_ndcg_top_n_set] = NMF_Evaluate(mmu_mgi_mp_test_set, mmu_mgi_mp, U, V, top_n_set)
 %GROUP_NMF_EVALUATE Summary of this function goes here
 %   Detailed explanation goes here
     auc_map_ndcg_top_n_set = zeros(length(top_n_set),7);

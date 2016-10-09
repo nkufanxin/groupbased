@@ -11,10 +11,9 @@ function [ mmu_mgi_mp_test_set ] = Random_Choose_Test_Set( mmu_mgi_mp , test_set
         test_set_size = ceil(associate_phenotyps_a_gene*test_set_percent);        
         R = unidrnd(associate_phenotyps_a_gene,1,test_set_size);
         [~,cols] = find(mmu_mgi_mp(i,:));
-        mmu_mgi_mp_test_set(i,cols(R)) = 1;
+        mmu_mgi_mp_test_set(i,cols(R)) = 1;  
         
-        end
     end
-    R = unidrnd(N,1,n);
+    
 end
 

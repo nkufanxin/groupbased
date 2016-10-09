@@ -9,11 +9,12 @@ function [ mmu_mgi_mp_train_set ] = Train_set( mmu_mgi_mp, mmu_mgi_mp_test, trai
     %gene, then we random choose a phenotype as test case.
     for i = 1:total_gene_num
         associate_phenotyps_a_gene = sum(mmu_mgi_mp_train_set(i,:)>0);
-        train_set_size = ceil(associate_phenotyps_a_gene * wipe_train_set_percent);        
-        R = unidrnd(associate_phenotyps_a_gene,1,train_set_size);
-        [~,cols] = find(mmu_mgi_mp_train_set(i,:));
-        mmu_mgi_mp_train_set(i,cols(R)) = 1;  
-        
+        wipe_train_set_size = ceil(associate_phenotyps_a_gene * wipe_train_set_percent); 
+        if wipe_train_set_size>0
+            R = unidrnd(associate_phenotyps_a_gene,1,wipe_train_set_size);
+            [~,cols] = find(mmu_mgi_mp_train_set(i,:));
+            mmu_mgi_mp_train_set(i,cols(R)) = 0;  
+        end        
     end
 
 end

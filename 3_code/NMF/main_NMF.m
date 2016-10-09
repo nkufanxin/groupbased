@@ -1,7 +1,7 @@
-path(path,'evaluation')
-path(path,'data')
+path(path,'../evaluation')
+path(path,'../data')
 
-%clear;
+clear;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-load-%%%%%%%%%%%%%%%%%%%%%%%%%%
 load('data670.mat');
 % load('data670.mat','mmu_mp_mgi');
@@ -9,7 +9,6 @@ load('data670.mat');
 % load('data670.mat','mmu_pathway_mgi','mmu_ppi');
 % load('data670.mat','mmu_mp_mp');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mmu_mgi_mp = mmu_mp_mgi';
 experiment_times = 10;
 batch_folds = 1;
@@ -22,8 +21,8 @@ test_set_percent = 0.2;
 %indicates the percentage of origianl training set to train
 train_set_percent = 1;
 
-lambda0 = [0,0.001,0.01,0.1,1,10];%[0,0.001,0.01,0.1,1,10,100,1000]
-lambda1 = [0,0.001,0.01,0.1,1,10];% [0,0.001,0.01,0.1,1,10,100,1000]
+lambda0 = [0];%[0,0.001,0.01,0.1,1,10,100,1000]
+lambda1 = [0];% [0,0.001,0.01,0.1,1,10,100,1000]
 lambda2 = [0,1];
 
 top_n_set = [200,400,600,800,1000];
@@ -45,11 +44,10 @@ for i = 1:length(lambda0)
                 [mmu_mgi_mp_train_set] = Train_set(mmu_mgi_mp, mmu_mgi_mp_test_set, train_set_percent);
 
                 %train the model
-                [U, V, tmp2{ite,1}] = Group_NMF_Train(mmu_mgi_mp_train_set, mmu_pathway_mgi, mmu_ppi, mmu_mp_mp, ...,
+                [U, V, tmp2{ite,1}] = NMF_Train(mmu_mgi_mp_train_set, mmu_pathway_mgi, mmu_ppi, mmu_mp_mp, ...,
                     lambda0(i), lambda1(j), lambda2(k), K, max_ites, epsilon, batch_folds);
-                
                 %evaluate the model                
-                [tmp{ite,1}] = Group_NMF_Evaluate(mmu_mgi_mp_test_set, mmu_mgi_mp, U, V, top_n_set);              
+                [tmp{ite,1}] = NMF_Evaluate(mmu_mgi_mp_test_set, mmu_mgi_mp, U, V, top_n_set);              
                 tmp3{ite,1} = U;
                 tmp4{ite,1} = V;
             end 
@@ -73,7 +71,7 @@ for i = 1:length(lambda0)
         end
     end
 end
-directory='../4_result/GNMF/';
+directory='../../4_result/NMF/';
 if(~exist(directory,'dir'))
  mkdir(directory);
 end
